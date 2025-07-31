@@ -6,6 +6,20 @@ import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase.ts';
 import { collection, doc, setDoc, onSnapshot } from 'firebase/firestore';
 import AlertPopup from '../components/AlertPopup';
+import { generateChemistryResponse } from '../utils/geminiApi';
+import ReactMarkdown from 'react-markdown';
+
+// Custom styles for markdown content
+const markdownStyles = {
+  p: { margin: '0.5em 0' },
+  strong: { fontWeight: 'bold' },
+  em: { fontStyle: 'italic' },
+  ul: { paddingLeft: '1.5em', margin: '0.5em 0', listStyleType: 'disc' },
+  ol: { paddingLeft: '1.5em', margin: '0.5em 0', listStyleType: 'decimal' },
+  li: { margin: '0.25em 0', display: 'list-item' },
+  a: { color: '#3b82f6', textDecoration: 'underline' },
+  code: { backgroundColor: 'rgba(0,0,0,0.1)', padding: '0.1em 0.2em', borderRadius: '0.2em' },
+};
 
 interface Message {
   text: string;
@@ -18,6 +32,7 @@ function Chatbot() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Load messages from Firestore
@@ -62,33 +77,49 @@ function Chatbot() {
     }
     if (!input.trim()) return;
 
+    // Clear any previous errors
+    setError(null);
+    
     const userMessage: Message = { text: input, isUser: true };
+    const currentInput = input; // Store the current input
+    
+    // Clear input immediately for better UX
+    setInput('');
+    
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
     setIsTyping(true);
 
     try {
-      const response = await fetch('http://localhost:5000/predict', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input }),
-      });
-      const data = await response.json();
-      const botMessage: Message = { text: data.response, isUser: false };
+      // Debug: Log that we're about to call the Gemini API
+      console.log('Calling Gemini API with input:', currentInput.substring(0, 20) + '...');
+      
+      // Use Gemini API instead of local model
+      const response = await generateChemistryResponse(currentInput);
+      
+      // Debug: Log successful response
+      console.log('Received response from Gemini API');
+      
+      const botMessage: Message = { text: response, isUser: false };
       const newMessages = [...updatedMessages, botMessage];
       setIsTyping(false);
       setMessages(newMessages);
       await saveMessagesToFirestore(newMessages);
-    } catch (error) {
-      console.error('Error fetching response:', error);
-      const errorMessage: Message = { text: 'Sorry, something went wrong.', isUser: false };
+    } catch (error: any) {
+      console.error('Error fetching response from Gemini:', error);
+      
+      // Set the error message for display
+      setError(error.message || 'Unknown error occurred');
+      
+      const errorMessage: Message = { 
+        text: `Sorry, something went wrong with the AI service: ${error.message || 'Unknown error'}. Please try again later.`, 
+        isUser: false 
+      };
       const newMessages = [...updatedMessages, errorMessage];
       setIsTyping(false);
       setMessages(newMessages);
       await saveMessagesToFirestore(newMessages);
     }
-
-    setInput('');
   };
 
   const clearChat = async () => {
@@ -156,13 +187,31 @@ function Chatbot() {
                   className={`${message.isUser ? 'text-right' : 'text-left'}`}
                 >
                   <div
-                    className={`inline-block max-w-[85%] sm:max-w-[80%] px-4 sm:px-6 py-2 sm:py-3 rounded-2xl sm:rounded-3xl ${
-                      message.isUser
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-purple-900/50 text-white'
-                    }`}
-                  >
-                    {message.text}
+                      className={`inline-block max-w-[85%] sm:max-w-[80%] px-4 sm:px-6 py-2 sm:py-3 rounded-2xl sm:rounded-3xl ${
+                        message.isUser
+                          ? 'bg-purple-600 text-white'
+                          : 'bg-purple-900/50 text-white'
+                      }`}
+                      style={{ wordBreak: 'break-word' }}
+                    >
+                    {message.isUser ? (
+                      message.text
+                    ) : (
+                      <ReactMarkdown
+                              components={{
+                                p: ({node, ...props}) => <p style={markdownStyles.p} {...props} />,
+                                strong: ({node, ...props}) => <strong style={markdownStyles.strong} {...props} />,
+                                em: ({node, ...props}) => <em style={markdownStyles.em} {...props} />,
+                                ul: ({node, ...props}) => <ul style={markdownStyles.ul} {...props} />,
+                                ol: ({node, ...props}) => <ol style={markdownStyles.ol} {...props} />,
+                                li: ({node, ...props}) => <li style={markdownStyles.li} {...props} />,
+                                a: ({node, ...props}) => <a style={markdownStyles.a} {...props} />,
+                                code: ({node, ...props}) => <code style={markdownStyles.code} {...props} />
+                              }}
+                            >
+                              {message.text}
+                            </ReactMarkdown>
+                    )}
                   </div>
                 </div>
               ))}
@@ -220,6 +269,19 @@ function Chatbot() {
           message="Please log in to interact with the Chem Lab Chatbot."
           onClose={() => setShowAlert(false)}
         />
+      )}
+      
+      {/* Error Display */}
+      {error && (
+        <div className="fixed bottom-20 left-0 right-0 mx-auto w-full max-w-md bg-red-600 text-white p-4 rounded-lg shadow-lg z-50 text-center">
+          <p className="font-medium">Error: {error}</p>
+          <button 
+            onClick={() => setError(null)} 
+            className="mt-2 px-4 py-1 bg-white text-red-600 rounded-full text-sm font-medium"
+          >
+            Dismiss
+          </button>
+        </div>
       )}
     </div>
   );

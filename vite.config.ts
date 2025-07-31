@@ -7,4 +7,6 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  // Define environment variables prefix
+  envPrefix: 'REACT_APP_',
 });

@@ -12,9 +12,25 @@ You can view or download the project files from the link below:
 
 ---
 
+## 🔑 API Setup
+
+This project uses Google's Gemini API for the chatbot functionality. Follow these steps to set it up:
+
+1. Visit [Google AI Studio](https://aistudio.google.com/) and sign in with your Google account
+2. Navigate to the API Keys section and create a new API key
+3. Copy your API key
+4. Open the `.env` file in the project root
+5. Replace `YOUR_API_KEY_HERE` with your actual Gemini API key
+
+```
+REACT_APP_GEMINI_API_KEY=your_actual_api_key_here
+```
+
+---
+
 ## 🚀 Features
 
-- 💬 **AI Chatbot** – Powered by Python (Flask, NLTK, Scikit-learn) for natural language understanding.
+- 💬 **AI Chatbot** – Powered by Google's Gemini API for advanced chemistry assistance.
 - 🧪 **Reaction Simulator** – Visual simulation of basic chemical reactions.
 - 🧠 **Interactive Quizzes** – Personalized learning with instant feedback.
 - 📚 **Periodic Table** – Clickable and informative periodic table to explore elements.
@@ -26,13 +42,13 @@ You can view or download the project files from the link below:
 
 ChemLab/
 │
-├── chatbot-training/         # Python backend for chatbot
-│   ├── app.py                # Flask API for chatbot response
-│   ├── train.py              # Trains TF-IDF model using CSV data
-│   ├── predict.py            # CLI test script for chatbot
-│   ├── model.pkl             # Saved chatbot model
-│   ├── dataset.csv           # Q&A data for training
-│   └── download_nltk_data.py # Downloads necessary NLTK datasets
+├── chatbot-training/         # Legacy Python backend (not used in current version)
+│   ├── app.py                # Legacy Flask API
+│   ├── train.py              # Legacy training script
+│   ├── predict.py            # Legacy prediction script
+│   ├── model.pkl             # Legacy model file
+│   ├── dataset.csv           # Legacy Q&A data
+│   └── download_nltk_data.py # Legacy NLTK data downloader
 │
 ├── src/                      # React frontend source
 │   ├── components/           # UI components
@@ -41,6 +57,8 @@ ChemLab/
 │   ├── images/               # Assets used in UI
 │   ├── pages/                # Page-level components (Home, Quiz, etc.)
 │   ├── types/                # TypeScript interfaces
+│   ├── utils/                # Utility functions
+│   │   └── geminiApi.ts      # Gemini API integration
 │   ├── App.tsx              # Main App Component
 │   ├── main.tsx             # React entry point
 │   └── firebase.ts          # Firebase auth config
@@ -48,6 +66,9 @@ ChemLab/
 ├── index.html
 ├── package.json             # Frontend dependencies
 ├── tailwind.config.js       # TailwindCSS config
+├── .env                     # Environment variables (API keys)
+├── docs/                    # Documentation
+│   └── gemini-api-integration.md # Gemini API integration guide
 ├── vite.config.ts           # Vite bundler config
 ├── tsconfig.json            # TypeScript config
 
