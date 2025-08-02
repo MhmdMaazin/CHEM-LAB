@@ -8,5 +8,5 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
   // Define environment variables prefix
-  envPrefix: 'REACT_APP_',
+  envPrefix: 'VITE_',
 });
