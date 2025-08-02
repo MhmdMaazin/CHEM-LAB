@@ -2,16 +2,22 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
-// Your Firebase configuration (replace with your config)
+// Your Firebase configuration from environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyAmQ1-6v69r0nwiJf-aFOd_-qWQwkD2gZE",
-  authDomain: "chemlab-66404.firebaseapp.com",
-  projectId: "chemlab-66404",
-  storageBucket: "chemlab-66404.firebasestorage.app",
-  messagingSenderId: "16553317865",
-  appId: "1:16553317865:web:21355775cd049de0572778",
-  measurementId: "G-8CQMV64W0L"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
+
+// Validate configuration
+if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'your_firebase_api_key_here') {
+  console.error('Firebase API key is not configured. Please check your .env file.');
+}
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
@@ -22,4 +28,4 @@ const googleProvider = new GoogleAuthProvider();
 // Initialize Firestore
 const db = getFirestore(app);
 
-export { auth, db, googleProvider};
+export { auth, db, googleProvider };

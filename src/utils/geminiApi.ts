@@ -1,11 +1,12 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Initialize the Gemini API client
-// Access the API key from import.meta.env instead of process.env
-const API_KEY = import.meta.env.REACT_APP_GEMINI_API_KEY || 'YOUR_API_KEY';
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
-// Debug: Log the API key (first few characters only for security)
-console.log('API Key available:', API_KEY ? `${API_KEY.substring(0, 5)}...` : 'Not found');
+// Validate API key
+if (!API_KEY || API_KEY === 'your_gemini_api_key_here') {
+  console.error('Gemini API key is not configured. Please set VITE_GEMINI_API_KEY in your .env file.');
+}
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
@@ -16,22 +17,17 @@ const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 export const generateChemistryResponse = async (prompt: string): Promise<string> => {
   try {
     // Check if API key is valid
-    if (!API_KEY || API_KEY === 'YOUR_API_KEY') {
+    if (!API_KEY || API_KEY === 'your_gemini_api_key_here') {
       throw new Error('Invalid API key. Please set a valid Gemini API key in your .env file.');
     }
 
-    console.log('Using API key:', API_KEY.substring(0, 5) + '...');
-    
     // Add context to ensure responses are chemistry-focused
     const chemistryPrompt = `You are a chemistry expert assistant for students. 
     Please provide accurate, educational responses to this chemistry question: ${prompt}. 
     If the question is not related to chemistry, politely explain that you're a chemistry assistant 
     and can only answer chemistry-related questions.`;
     
-    console.log('Sending request to Gemini API...');
     const result = await model.generateContent(chemistryPrompt);
-    console.log('Received result from Gemini API');
-    
     const response = await result.response;
     return response.text();
   } catch (error: any) {
