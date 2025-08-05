@@ -1,16 +1,21 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Atom } from 'lucide-react';
+// import RippleGrid from '../blocks/Backgrounds/LightRays/LightRays';
 import Navbar from '../components/Navbar';
+import LightRays from '../blocks/Backgrounds/LightRays/LightRays';
 
 function Home() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black p-4">
-      <Navbar />
+    <div className="relative md:h-screen min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black p-4">
+      <div className="absolute inset-0 z-0">
+        <LightRays />
+      </div>
+      <Navbar/>
       
-      <main className="container mx-auto px-4 flex items-center justify-center min-h-screen">
+      <main className="container mx-auto px-4 flex items-center justify-center md:h-screen min-h-screen relative z-10">
   <div className="text-center max-w-4xl">
     <h1 className="text-5xl font-bold text-white mb-6">
       Unlock The Secrets Of
