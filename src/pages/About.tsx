@@ -69,7 +69,7 @@ function About() {
 
             <div className="text-center pt-8">
               <a
-                href="https://maazin-portfolio.netlify.app/"
+                href="https://maazin.vercel.app/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block px-6 py-3 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors"
